@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="lib/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="form_inner">
+        用户名：<input type="text" class="username">
+        密码：<input type="password" class="password">
+        <input type="button" class="btn adduser" value="添加">
+    </div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>用户名</th>
+                <th>密码</th>
+                <th>操作</th>
+            </tr>
+            <% 
+                for(var i = 0 ; i < data.length ; i++){
+            %>
+                <tr >
+                    <td><%= data[i].name %></td>    
+                    <td><%= data[i].password %></td>
+                    <td><input type="button" class="btn deleteuser" value="删除" data-id=<%= data[i].Id %> ></td>
+                </tr>
+            <%
+                }
+            %>
+            </thead>
+    </table>
+       
+
+
+    <script src="lib/jquery-1.8.3.min.js"></script>
+<script>
+    //添加
+    $(".adduser").on("click",function(){
+        var username = $(".username").val();
+        var password = $(".password").val();
+        if(username =="" || password == ""){
+            alert("不能为空");
+            return false;
+        }
+        $.ajax({
+            type:"POST",
+            url:"/addUser",
+            data:{
+                "username":username,
+                "password":password
+            },
+            success:function(data){
+                if(data.status == -1){
+                    alert("添加失败");
+                }else{
+                    var html='<tr>'+
+                    '<td>'+username+'</td>'+
+                    '<td>'+password+'</td>'+
+                    '<td><input type="button" class="btn deleteuser" value="删除" data-id="'+data.insertId+'"></td>'+
+                    '</tr>'
+                    alert("添加成功");
+                    $(".table thead").append(html)
+                    $(".username").val("");
+                    $(".password").val("");
+                }
+            }
+        })
+    })
+
+    //删除
+    $(".table").on('click', '.deleteuser', function(e){
+        var userid = $(this).attr("data-id");
+        var _this = $(this);
+        $.ajax({
+            type:"POST",
+            url:"/delUser",
+            data:{
+                "userid":userid
+            },
+            success:function(data){
+                console.log(data.status)
+                if(data.status == 1){
+                    alert("删除成功");
+                    _this.parent().parent().remove();
+                }
+                else{
+                    alert("删除失败");
+                }
+            }
+        })
+    })
+
+</script>
+</body>
+</html>
