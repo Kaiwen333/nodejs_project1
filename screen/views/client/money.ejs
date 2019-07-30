@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+    <title>数钱-游戏页</title>
+    <!--CSS-->
+    <link rel="stylesheet" href="/lib/materialize/css/materialize.min.css" media="screen,projection">
+    <link href="/css/clientGame.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+    <!-- 加载 START -->
+    <div class="loader_box">
+        <div class="loader">
+            <div class="loader-1"></div>
+            <div class="loader-2"></div>
+            <div class="loader-3"></div>
+        </div>
+        <div class="loader_tip"></div>
+    </div>
+    <!-- 加载 END -->
+
+    <div class="game_info" style="display:none">
+        <div class="price">
+            ￥ <span>0</span>
+        </div>
+        <div class="clock">
+            <span>0</span>''
+        </div>
+    </div>
+   
+
+    <canvas id="mycanvas" width="0" height="0"> 您的浏览器不支持html5, 请换用支持html5的浏览器</canvas>
+
+    <script src="/lib/jquery-2.1.1.min.js"></script>
+    <script src="/lib/materialize/js/materialize.min.js"></script>
+    <script src="https://cdn.bootcss.com/vConsole/3.3.2/vconsole.min.js"></script>
+    <!-- JS -->
+    <script src="/js/money/game.js"></script>
+    <script src="/js/money/Background.js"></script>
+    <script src="/js/money/StaticMoney.js"></script>
+    <script src="/js/money/SceneManager.js"></script>
+    <script src="/js/money/Ready.js"></script>
+    <script>
+       var vConsole = new VConsole();
+        var game = new Game({
+            "canvasid" : "#mycanvas"
+        });
+    </script>
+</body>
+</html>

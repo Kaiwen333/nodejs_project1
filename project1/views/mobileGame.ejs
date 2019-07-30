@@ -26,6 +26,7 @@
 <script src="lib/jquery-1.8.3.min.js"></script>
 <script>
     var vConsole = new VConsole();
+    var count = 0;
      window.addEventListener("deviceorientation", handleOrientation, true);
     function handleOrientation(event) {
         var alpha = event.alpha;//表示在沿着Z轴的旋转,取值是[-180,180)

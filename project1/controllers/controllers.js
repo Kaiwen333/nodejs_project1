@@ -31,6 +31,7 @@ var userInfo = function(req,res){
                 if(result==0){
                     res.send({"status":-1});
                 }else{
+                    req.session.userName = fields.username;
                     res.send({"status":1});
                 }
             })
