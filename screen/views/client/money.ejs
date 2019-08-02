@@ -9,9 +9,10 @@
     <!--CSS-->
     <link rel="stylesheet" href="/lib/materialize/css/materialize.min.css" media="screen,projection">
     <link href="/css/clientGame.css" rel="stylesheet" type="text/css"/>
+    <script src="/lib/rem.js"></script>
 </head>
 <body>
-    <!-- 加载 START -->
+    <!-- 加载进度条 START -->
     <div class="loader_box">
         <div class="loader">
             <div class="loader-1"></div>
@@ -20,8 +21,9 @@
         </div>
         <div class="loader_tip"></div>
     </div>
-    <!-- 加载 END -->
+    <!-- 加载进度条 END -->
 
+    <!-- 分数框 START -->
     <div class="game_info" style="display:none">
         <div class="price">
             ￥ <span>0</span>
@@ -30,24 +32,72 @@
             <span>0</span>''
         </div>
     </div>
-   
-
+    <!-- 分数框 END -->
     <canvas id="mycanvas" width="0" height="0"> 您的浏览器不支持html5, 请换用支持html5的浏览器</canvas>
+    <!-- 弹框 START -->
+    <div class="game_mask"></div>
+    <div class="game_frame_wrap">
+        <div class="game_frame_bg">
+            <div class="game_frame_tit">
+                本轮排名
+            </div>
+            <div class="game_frame_rank">
+                第
+                <strong>1</strong>
+                名
+            </div>
+            <div class="game_frame_score">
+                当前得分: ￥
+                <span>600000</span>
+            </div>
+            <div class="game_frame_colse"></div>
+        </div>
+    </div>
+    <!-- 弹框 END -->
 
     <script src="/lib/jquery-2.1.1.min.js"></script>
     <script src="/lib/materialize/js/materialize.min.js"></script>
     <script src="https://cdn.bootcss.com/vConsole/3.3.2/vconsole.min.js"></script>
+    <script src="/lib/socket.io.js"></script>
     <!-- JS -->
     <script src="/js/money/game.js"></script>
     <script src="/js/money/Background.js"></script>
-    <script src="/js/money/StaticMoney.js"></script>
+    <script src="/js/money/Money.js"></script>
     <script src="/js/money/SceneManager.js"></script>
     <script src="/js/money/Ready.js"></script>
+
     <script>
-       var vConsole = new VConsole();
+        //    var vConsole = new VConsole();
         var game = new Game({
             "canvasid" : "#mycanvas"
         });
+
+
+         var socket = io({
+          'timeout':5000,
+          'connect timeout':5000
+        });
+
+        if(socket !== undefined ){
+          console.log('connected to socket....'); 
+        }
+      
+        socket.emit("login","userName1")      
+     
+
+        socket.on("updateUser",function(connectedUser){
+            console.log(connectedUser);
+            connectedUser.forEach(function(item){
+                console.log(item)
+            })
+        })
+
+        socket.on("startGame",function(){
+            console.log(123);
+            game.sm.enter(2);
+        })
+
+
     </script>
 </body>
 </html>

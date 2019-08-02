@@ -4,7 +4,7 @@ module.exports =
         host: 'localhost',     
         user: 'root',   
         password: 'root',  
-        database:'project1', // 前面建的user表位于这个数据库中 
+        database:'project1',  
         port: 3306  
     }
  };

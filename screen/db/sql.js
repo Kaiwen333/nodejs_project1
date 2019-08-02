@@ -1,17 +1,17 @@
 var mysql = require('mysql');
 var DBConfig = require('./DBConfig.js');
+var pool = mysql.createPool(DBConfig.mysql);
 
-var pool=mysql.createPool(DBConfig.mysql);  
 
 //操作数据库，不带参数
-var query = function(sql, callback) {
+var query = function (sql, callback) {
     pool.getConnection(function (err, connection) {
-        if(err){          
-            callback(err,null,null);
-        }else{
+        if (err) {
+            callback(err, null, null);
+        } else {
             connection.query(sql, function (err, rows) {
-                connection.release();   
-                callback(err, rows);             
+                connection.release();
+                callback(err, rows);
             });
         }
     });
@@ -19,15 +19,15 @@ var query = function(sql, callback) {
 
 
 //操作数据库，带参数
-var queryArgs = function(sql,args, callback) {
+var queryArgs = function (sql, args, callback) {
     pool.getConnection(function (err, connection) {
-        if(err){           
-            callback(err,null,null);
-        }else{
-            connection.query(sql, args,function (err, rows) {
+        if (err) {
+            callback(err, null, null);
+        } else {
+            connection.query(sql, args, function (err, rows) {
                 connection.release();
                 callback(err, rows);
-               
+
             });
         }
     });

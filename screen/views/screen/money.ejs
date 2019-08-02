@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <div class="users"></div>
+    <ul id="user-ul">
+        
+    </ul>
+
+    <button id="start">开始游戏</button>
+    <script src="/lib/socket.io.js"></script>
+    <script>
+       var userUl = document.getElementById("user-ul");
+
+
+        var socket = io({
+        'timeout':5000,
+        'connect timeout':5000
+        });
+
+        if(socket !== undefined ){
+         console.log('connected to socket....'); 
+        }
+
+        socket.on("updateUser",function(connectedUser){
+            userUl.innerHTML = "";
+            connectedUser.forEach(function(item){
+                var userli = document.createElement('li');
+                userli.setAttribute('class','collection-item');
+                userli.textContent=item;
+                userUl.appendChild(userli);
+            })
+            document.querySelector(".users").innerHTML = `共 ${connectedUser.length} 人`;
+        })
+
+        socket.emit("getUserInfo")
+
+        var startGame = document.getElementById('start');
+        startGame.onclick = function(){
+            socket.emit("startGame");
+        }
+    </script>
+</body>
+</html>
