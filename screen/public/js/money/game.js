@@ -212,7 +212,7 @@
         setTimeout(function(){
             document.getElementsByClassName("game_frame_bg")[0].style.transform = 'scale(1,1)';
         },40)
-    }
+    } 
     // 关闭结果弹框
     Game.prototype.closeResultTk = function(){
         var self = this;
