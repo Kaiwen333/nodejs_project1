@@ -61,19 +61,18 @@
     <script src="/lib/socket.io.js"></script>
     <!-- JS -->
     <script src="/js/money/game.js"></script>
-    <script src="/js/money/Background.js"></script>
-    <script src="/js/money/Money.js"></script>
-    <script src="/js/money/SceneManager.js"></script>
-    <script src="/js/money/Ready.js"></script>
 
     <script>
         //    var vConsole = new VConsole();
+      
+        var connect_sid = '<%= connect_sid %>';
+        console.log(connect_sid);
         var game = new Game({
             "canvasid" : "#mycanvas"
         });
 
 
-         var socket = io({
+        var socket = io({
           'timeout':5000,
           'connect timeout':5000
         });
@@ -82,7 +81,7 @@
           console.log('connected to socket....'); 
         }
       
-        socket.emit("login","userName1")      
+        socket.emit("login",connect_sid);      
      
 
         socket.on("updateUser",function(connectedUser){

@@ -29,10 +29,22 @@
 
         socket.on("updateUser",function(connectedUser){
             userUl.innerHTML = "";
+            console.log(connectedUser);
             connectedUser.forEach(function(item){
+                console.log(item);
                 var userli = document.createElement('li');
+                var img = document.createElement("img");
+                var username =document.createElement("div");
+
+                img.src=item.headimgurl;
+                img.width = 100;
+                img.height = 100;
+                
+                username.innerHTML = item.nickname;
+                username.setAttribute("data-openid",item.openid);
                 userli.setAttribute('class','collection-item');
-                userli.textContent=item;
+                userli.textContent=item.nickname;
+                userUl.appendChild(img);
                 userUl.appendChild(userli);
             })
             document.querySelector(".users").innerHTML = `共 ${connectedUser.length} 人`;

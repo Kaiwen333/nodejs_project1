@@ -3,6 +3,8 @@ var controllers = require("./controllers/controllers.js");
 var session = require('express-session')
 var app = express();
 var wechat = require('./controllers/wechat.js')
+var client = require('./controllers/client');
+
 
 
 // 配置模板引擎
@@ -20,8 +22,7 @@ app.use(session({
 
 app.get("/token",wechat);
 
-var oauth = require('./controllers/oauth');
-app.use('/oauth', oauth);
+app.use('/client', client);
 
 
 

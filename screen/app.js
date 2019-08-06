@@ -1,18 +1,26 @@
 var express = require("express");
-var clientControllers = require("./controllers/clientControllers.js");
-var screenControllers = require("./controllers/screenControllers.js");
 var session = require('express-session');
-var checkAuth = require('./controllers/checkAuth');
 var app = express();
 var server = require('http').createServer(app);
 var io = require('socket.io').listen(server).sockets;
-var socketConnection = require("./controllers/socket/socketConnection");
+var MemoryStore  = require ('memorystore')(session);
+
+var clientControllers = require("./controllers/clientControllers.js");
+var screenControllers = require("./controllers/screenControllers.js");
+var wx_oauth = require("./controllers/wx_oauth")
+var session_store = new MemoryStore(
+	{
+		checkPeriod:86400000 //  每24小时修剪一次过期的条目  
+	}
+);
+
 
 // 配置模板引擎
 app.set("view engine", "ejs");
 
 app.use(session({
-	secret: 'keyboard cat',
+	store:session_store,
+	secret: 'screen game',
 	cookie: {
 		maxAge: 60000
 	},
@@ -22,39 +30,49 @@ app.use(session({
 
 
 
-// 手机端数钱登录
-app.get("/client/login", clientControllers.login);
-// 手机端数钱游戏
-app.get("/client/money", checkAuth.checkAuth, clientControllers.money);
-// 提交用户信息
-app.post("/client/verifyUser", clientControllers.verifyUser);
+// 手机端游戏
+app.get("/client/game",clientControllers.oauth,clientControllers.game);
+// 微信登录 
+app.get('/client/wx_login',wx_oauth.wx_login);
+app.get('/client/get_wx_access_token',wx_oauth.get_wx_access_token);
 // 大屏端数钱游戏
-app.get("/screen/money", screenControllers.money)
+app.get("/screen/money",screenControllers.money);
 
 // websocket
 var connectedUser = [];
 io.on('connection', function(socket){
-	console.log(socket);
     var userName='';
 	// 监听断开连接 
 	socket.on('disconnect',function(){
-		socketConnection.disconnect(userName,connectedUser,function(){
-			updateUser();
-		})
-
+		// if (userName) {
+		// 	connectedUser.splice(connectedUser.indexOf(userName), 1);
+		// }
+		updateUser();
 	});
 	//监听登录事件
 	socket.on("login",function(_userName){
 		userName = _userName;
-		socketConnection.login(userName,_userName,connectedUser,function(){
-			updateUser();
-		});
+		session_store.get(_userName,function(err,session){
+			if(err){
+
+			}else{
+				connectedUser.push({
+					"openid" : session.openid,
+					"nickname" : session.nickname,
+					"headimgurl" : session.headimgurl,
+					"score": 0
+				})
+				updateUser();
+			}
+		})
 	})
 	socket.on("getUserInfo",function(){
 		updateUser();
 	})
 	// 更新用户信息
 	var updateUser = function() {
+		console.log(connectedUser);
+
 		io.emit('updateUser', connectedUser);
 	}
 	socket.on("startGame",function(){
@@ -62,6 +80,12 @@ io.on('connection', function(socket){
 	})
 
 });
+
+
+// 手机端数钱登录
+// app.get("/client/login", clientControllers.login);
+// 提交用户信息
+// app.post("/client/verifyUser", clientControllers.verifyUser);
 
 
 // 配置静态资源文件

@@ -3,9 +3,32 @@ var clientSqlUse = require("../models/clientSqlUse");
 
 
 //手机端 数钱页面
-exports.money = function (req, res) {
-    res.render("client/money");
+exports.game = function (req, res) {
+    var gamename = req.query.game;
+    console.log(`session ${req.sessionID}`)
+    switch(gamename){
+        case 'money':
+            console.log(req.sessionID);
+            res.render("client/money",{
+                "connect_sid": req.sessionID
+            });
+            break;
+        default:
+            break;
+    }
 }
+
+
+exports.oauth = function(req,res,next){
+    if(req.session.openid){
+        next();
+    }else{
+        var gamename = req.query.game;
+        res.redirect('/client/wx_login?game='+gamename);
+    }
+}
+
+
 //手机端 数钱登录页面
 exports.login = function (req, res) {
     res.render("client/login");
@@ -45,3 +68,5 @@ exports.verifyUser = function (req, res) {
         }
     });
 }
+
+
