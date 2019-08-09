@@ -4,58 +4,148 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
+    <title>数钱游戏</title>
+    <link rel="stylesheet" href="/lib/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/screen.css">
+
+    <script src="/js/money/rem.js"></script>
 </head>
 <body>
-    <div class="users"></div>
-    <ul id="user-ul">
-        
-    </ul>
+    <div class="screen_wrap">
+        <div class="screen_container">
+            <div class="page_container">
+                <div class="screen_money">
+                    <!-- 大屏游戏页面 START -->
+                    <div class="screen_main">
+                        <!-- 钱掉落 -->
+                        <div class="screen_stage_container">
+                            <div class="screen_float_money" style="display:none;" >
+                                <span><img src="/images/screen/m1.png" alt=""></span>
+                                <span><img src="/images/screen/m2.png" alt=""></span>
+                                <span><img src="/images/screen/m3.png" alt=""></span>
+                                <span><img src="/images/screen/m4.png" alt=""></span>
+                                <span><img src="/images/screen/m5.png" alt=""></span>
+                                <span><img src="/images/screen/m6.png" alt=""></span>
+                                <span><img src="/images/screen/m7.png" alt=""></span>
+                                <span><img src="/images/screen/m8.png" alt=""></span>
+                                <span><img src="/images/screen/m9.png" alt=""></span>
+                                <span><img src="/images/screen/m10.png" alt=""></span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 大屏游戏页面 END -->
 
-    <button id="start">开始游戏</button>
+                    <!-- 倒计时 -->
+                    <div class="screen_countdown">00:00</div>
+                    <!-- 准备页面 START -->
+                    <div class="screen_pannel">
+                        <div class="screen_panel_container">
+                            <!-- 标题 -->
+                            <div class="screen_panel_top">
+                                <div class="screen_panel_top_img">
+                                    <img src="/images/screen/tit.png" alt="">
+                                </div>
+                                <div class="screen_qrcode_icon">
+                                    <img src="/images/screen/ewm.png" alt="">
+                                </div>
+                            </div>
+                            <!-- 参与人数及开始按钮 -->
+                            <div class="screen_panel_middle">
+                                <div  class="count-container">
+                                    <div class="label">
+                                        已参与人数：
+                                    </div>
+                                    <div class="count" id="join_number">
+                                        <!-- <div class="join_number_wrap">
+                                            <img src="/images/screen/0.png" alt="">
+                                        </div> -->
+                                    </div>
+                                </div>
+                                <div class="screen_start_btn"></div>
+                            </div>
+                            <!-- 参加人头像 -->
+                            <div class="screen_panel_bottom">
+                                <div class="screen_panel_bottom_con"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 准备页面 END -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="alert_wrap" class="alert_wrap"></div>
+    <div class="qrcode_img">
+        <img src="/images/screen/qcodeimg.png" alt="">
+    </div>
+
+    <script src="/lib/jquery-2.1.1.min.js"></script>
+    <script src="/lib/bootstrap/js/bootstrap.min.js"></script>
     <script src="/lib/socket.io.js"></script>
+    <script src="/js/money/alert.js"></script>
+    <script src="/js/money/number.js"></script>
     <script>
-       var userUl = document.getElementById("user-ul");
-
-
+        
+        var connectedUser = null;
+        var imglist = document.querySelector(".screen_panel_bottom_con");
         var socket = io({
-        'timeout':5000,
-        'connect timeout':5000
+            'timeout':5000,
+            'connect timeout':5000
         });
-
-        if(socket !== undefined ){
-         console.log('connected to socket....'); 
-        }
-
-        socket.on("updateUser",function(connectedUser){
-            userUl.innerHTML = "";
-            console.log(connectedUser);
-            connectedUser.forEach(function(item){
-                console.log(item);
-                var userli = document.createElement('li');
-                var img = document.createElement("img");
-                var username =document.createElement("div");
-
-                img.src=item.headimgurl;
-                img.width = 100;
-                img.height = 100;
-                
-                username.innerHTML = item.nickname;
-                username.setAttribute("data-openid",item.openid);
-                userli.setAttribute('class','collection-item');
-                userli.textContent=item.nickname;
-                userUl.appendChild(img);
-                userUl.appendChild(userli);
-            })
-            document.querySelector(".users").innerHTML = `共 ${connectedUser.length} 人`;
+   
+        var peopleNumber = new PeopleNumber({
+            "dom":"#join_number"
         })
 
-        socket.emit("getUserInfo")
-
-        var startGame = document.getElementById('start');
-        startGame.onclick = function(){
-            socket.emit("startGame");
+        if(socket !== undefined ){
+            console.log('connected to socket....'); 
         }
+
+        function createElement (tagName, className) {
+            var elment = document.createElement(tagName)
+            elment.className = className
+            return elment
+        }
+        
+        function addUserHeadImg(headimgurl){
+            var itemImgWrap = createElement("div","item_img_wrap");
+            var itemHeadimg = createElement("div","item_headimg");
+            var img = createElement("img","")
+            img.src=headimgurl;
+            itemHeadimg.appendChild(img);
+            itemImgWrap.appendChild(itemHeadimg)
+            imglist.appendChild(itemImgWrap);
+        }
+
+        socket.on("updateUser",function(_connectedUser){
+            connectedUser = _connectedUser;
+            imglist.innerHTML="";
+            connectedUser.forEach(function(item){
+                addUserHeadImg(item.headimgurl);
+            })
+            peopleNumber.update(connectedUser.length);
+        })
+        socket.emit("getUserInfo")
+        document.querySelector(".screen_start_btn").onclick = function(){
+            if(connectedUser.length == 0){
+                new showAlert({
+                    "text":"当前没有用户参与",
+                    "dom":"#alert_wrap"
+                })
+            }else{
+                socket.emit("startGame");
+            }
+        }
+        $(".screen_qrcode_icon").click(function(){
+            if($(".qrcode_img").hasClass("visible")){
+                $(".qrcode_img").removeClass("visible");
+            }else{
+                $(".qrcode_img").addClass("visible");
+            }
+        })
+
+    
     </script>
 </body>
 </html>

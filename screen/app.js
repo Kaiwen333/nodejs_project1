@@ -8,11 +8,9 @@ var MemoryStore  = require ('memorystore')(session);
 var clientControllers = require("./controllers/clientControllers.js");
 var screenControllers = require("./controllers/screenControllers.js");
 var wx_oauth = require("./controllers/wx_oauth")
-var session_store = new MemoryStore(
-	{
-		checkPeriod:86400000 //  每24小时修剪一次过期的条目  
-	}
-);
+var session_store = new MemoryStore({
+	checkPeriod:86400000 //  每24小时修剪一次过期的条目  
+});
 
 
 // 配置模板引擎
@@ -41,44 +39,47 @@ app.get("/screen/money",screenControllers.money);
 // websocket
 var connectedUser = [];
 io.on('connection', function(socket){
-    var userName='';
+	var userInfo = {};
+	// 更新用户信息
+	var updateUser = function() {
+		io.emit('updateUser', connectedUser);	
+	}
+	var updateUserInfo = function(){
+		io.emit('updateUserInfo',userInfo);
+	}
 	// 监听断开连接 
 	socket.on('disconnect',function(){
-		// if (userName) {
-		// 	connectedUser.splice(connectedUser.indexOf(userName), 1);
-		// }
+		if(JSON.stringify(userInfo) != {} ){
+			connectedUser =	connectedUser.filter(function(item){
+				return item.openid != userInfo.openid;
+			})
+		}
 		updateUser();
 	});
 	//监听登录事件
-	socket.on("login",function(_userName){
-		userName = _userName;
-		session_store.get(_userName,function(err,session){
-			if(err){
-
+	socket.on("login",function(connectid){
+		session_store.get(connectid,function(err,session){
+			if(err){ 
+				console.log(err);
 			}else{
-				connectedUser.push({
-					"openid" : session.openid,
-					"nickname" : session.nickname,
-					"headimgurl" : session.headimgurl,
-					"score": 0
-				})
-				updateUser();
+				if(session.openid){
+					userInfo.openid =  session.openid;
+					userInfo.nickname = session.nickname;
+					userInfo.headimgurl = session.headimgurl;
+					userInfo.score = 0;
+					connectedUser.push(userInfo);
+					updateUser();
+					updateUserInfo();
+				}
 			}
 		})
 	})
 	socket.on("getUserInfo",function(){
 		updateUser();
 	})
-	// 更新用户信息
-	var updateUser = function() {
-		console.log(connectedUser);
-
-		io.emit('updateUser', connectedUser);
-	}
 	socket.on("startGame",function(){
 		io.emit('startGame');
 	})
-
 });
 
 
